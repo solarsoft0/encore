@@ -14,8 +14,8 @@ use crate::parser::resources::Resource;
 use crate::parser::respath::Path;
 use crate::parser::types::visitor::VisitWith;
 use crate::parser::types::{
-    validation, visitor, Basic, Custom, Interface, ObjectId, ResolveState, Type, Validated,
-    WireLocation, WireSpec,
+    validation, visitor, Basic, Custom, Generic, Interface, ObjectId, ResolveState, Type,
+    Validated, WireLocation, WireSpec,
 };
 use crate::parser::Range;
 use crate::span_err::ErrReporter;
@@ -201,6 +201,16 @@ impl AppValidator<'_> {
                             underlying: typ,
                             ..
                         })) => is_valid_query_type(state, &typ, seen_named),
+                        Type::Generic(Generic::TypeParam(param)) => {
+                            param
+                                .constraint
+                                .as_ref()
+                                .map(|constraint| {
+                                    is_valid_query_type(state, constraint.as_ref(), seen_named)
+                                })
+                                .unwrap_or(true)
+                        }
+                        Type::Generic(_) => false,
                         _ => false,
                     }
                 }

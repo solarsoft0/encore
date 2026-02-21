@@ -1,0 +1,52 @@
+-- foo/foo.ts --
+import { api, Query } from "encore.dev/api";
+
+interface BaseFilterable<T> {
+  and?: T[];
+  or?: T[];
+}
+
+interface StringOps {
+  eq?: string | string[] | null;
+  gt?: string | null;
+  lt?: string | null;
+}
+
+interface Where {
+  and?: Where[];
+  or?: Where[];
+  created_at?: StringOps;
+  revoked_at?: StringOps;
+}
+
+interface OperatorMap<T> extends BaseFilterable<Query<T>> {
+  eq?: T | T[] | null;
+  gt?: T | null;
+  lt?: T | null;
+}
+
+interface GenericWhere {
+  created_at?: OperatorMap<string>;
+  revoked_at?: OperatorMap<string>;
+}
+
+interface RecursiveParams {
+  where?: Query<GenericWhere>;
+}
+
+interface Params extends BaseFilterable<Params> {
+  where?: Query<Where>;
+  recursive?: RecursiveParams;
+  created_at?: string;
+}
+
+export const test = api<Params, void>({}, () => {});
+
+-- package.json --
+{
+  "name": "foo",
+  "type": "module",
+  "dependencies": {
+    "encore.dev": "^1.35.0"
+  }
+}
